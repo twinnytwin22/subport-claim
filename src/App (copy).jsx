@@ -1,32 +1,37 @@
 import React, { useEffect, useState } from "react";
 import './styles/App.css';
 import twitterLogo from './assets/twitter-logo.svg';
-import { ethers } from "ethers";
+import { ethers, providers } from "ethers";
 import contractAbi from './utils/contractABI.json';
 import polygonLogo from './assets/polygonlogo.png';
 import ethLogo from './assets/ethlogo.png';
 import { networks } from './utils/networks';
-import Web3Modal from "web3modal";
 
 // Constants
-const TWITTER_HANDLE = 'subportxyz';
+const TWITTER_HANDLE = 'PRNSregistry';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
-const tld = '.subport';
+const tld = '.pri';
 const CONTRACT_ADDRESS = '0x6A4044E612b8D0bD23e65629a243cB19265A80Ec';
+const magic = new Magic('pk_live_355100D61E342DE5');
+
+const providerOptions = {
+  /* See Provider Options Section */
+};
+
 
 const App = () => {
+
   const [currentAccount, setCurrentAccount] = useState('');
   // Add some state data propertie
   const [domain, setDomain] = useState('');
   const [record, setRecord] = useState('');
-  const [pro, setPRO] = useState('');
-  const [ipi, setIPI] = useState('');
   const [network, setNetwork] = useState('');
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [mints, setMints] = useState([]);
   // Implement your connectWallet method here
+  
   const connectWallet = async () => {
     try {
       const { ethereum } = window;
@@ -81,6 +86,57 @@ const App = () => {
     }
   };
 
+
+
+
+  
+/* 3. Implement Render Function */
+const render = async () => {
+  let html = '';
+
+  /*
+    For this tutorial, our callback route is simply "/callback"
+  */
+  if (window.location.pathname === '/callback') {
+    try {
+      /* Complete the "authentication callback" */
+      await magic.auth.loginWithCredential();
+
+      /* Get user metadata including email */
+      const userMetadata = await magic.user.getMetadata();
+
+      html = `
+        <h1>Current user: ${userMetadata.email}</h1>
+        <button onclick="handleLogout()">Logout</button>
+      `;
+    } catch {
+      /* In the event of an error, we'll go back to the login page */
+      window.location.href = window.location.origin;
+    }
+  } else {
+    const isLoggedIn = await magic.user.isLoggedIn();
+
+    /* Show login form if user is not logged in */
+    html = `
+      <h1>Please sign up or login</h1>
+      <form onsubmit="handleLogin(event)">
+        <input type="email" name="email" required="required" placeholder="Enter your email" />
+        <button type="submit">Send</button>
+      </form>
+    `;
+
+    if (isLoggedIn) {
+      /* Get user metadata including email */
+      const userMetadata = await magic.user.getMetadata();
+      html = `
+        <h1>Current user: ${userMetadata.email}</h1>
+        <button onclick="handleLogout()">Logout</button>
+      `;
+    }
+  }
+
+  document.getElementById('app').innerHTML = html;
+};
   // Render Methods
   const renderNotConnectedContainer = () => (
     <div className="connect-wallet-container">
@@ -146,7 +202,6 @@ const App = () => {
 
     return (
       <div className="form-container">
-        <img className="pagelogo" src="/images/PRNS%20-LOGO-512.png"/>
         <p className="description">Create Your Performer Repository Indentifier or .PRI Domain</p>
         <div className="first-row">
           <input
@@ -169,18 +224,13 @@ const App = () => {
 
         <input
           type="text"
-          value={ipi}
+          value={record}
           placeholder='IPI #'
-          onChange={e => setIPI(e.target.value)}
+          onChange={e => setRecord(e.target.value)}
         /></div>
           <div className="fourth-row">
 
-             <input
-          type="text"
-          value={pro}
-          placeholder='Search PRO...'
-          onChange={e => setPRO(e.target.value)}
-        />
+          
 
 
             
@@ -191,11 +241,11 @@ const App = () => {
         {/* If the editing variable is true, return the "Set record" and "Cancel" button */}
         {editing ? (
           <div className="button-container">
-            
+            // This will call the updateDomain function we just made
             <button className='cta-button mint-button' disabled={loading} onClick={updateDomain}>
               Set record
               </button>
-
+            // This will let us get out of editing mode by setting editing to false
             <button className='cta-button mint-button' onClick={() => { setEditing(false) }}>
               Cancel
               </button>
@@ -378,6 +428,7 @@ const App = () => {
             <div className="right">
               <img alt="Network logo" className="logo" src={network.includes("Polygon") ? polygonLogo : ethLogo} />
               {currentAccount ? <p> Wallet: {currentAccount.slice(0, 6)}...{currentAccount.slice(-4)} </p> : <p> Not connected </p>}
+
 
             </div>
           </header>
