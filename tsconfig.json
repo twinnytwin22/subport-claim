@@ -21,14 +21,16 @@
       {
         "name": "next"
       }
-    ]
+    ],
+    "strictNullChecks": true
   },
   "include": [
     "next-env.d.ts",
     ".next/types/**/*.ts",
     "**/*.ts",
-    "**/*.tsx"
-, "ui/Mint.jsx"  ],
+    "**/*.tsx",
+    "ui/Mint.tsx"
+  ],
   "exclude": [
     "node_modules"
   ]

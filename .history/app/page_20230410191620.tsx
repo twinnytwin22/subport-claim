@@ -1,0 +1,12 @@
+import React from 'react'
+import Mint from '../ui/Mint'
+async function Home() {
+  return (
+    <div>
+      
+    
+    </div>
+  )
+}
+
+export default Home
