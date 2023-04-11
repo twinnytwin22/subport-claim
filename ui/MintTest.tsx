@@ -20,11 +20,8 @@ const MintTest = () => {
   // Add some state data properties
   const [domain, setDomain] = useState("");
   const [record, setRecord] = useState("");
-  const { isConnected, address, status } = useAccount();
-  const { chain } = useNetwork();
-  if (chain) {
-    console.log(chain.id);
-  }
+  const { status } = useAccount();
+
 
   const mintDomain = async () => {
     // Don't run if the domain is empty
@@ -44,7 +41,7 @@ const MintTest = () => {
 
     try {
      
-      if (isConnected) {
+      if (status == "connected") {
         const provider = new ethers.providers.Web3Provider(window.ethereum as any);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(
@@ -148,13 +145,13 @@ const MintTest = () => {
                 <h1 className="text-lg font-bold">subport</h1>
               </Link>
             </div>
-            {isConnected && <ConnectButton />}
+            {status === 'connected' && <ConnectButton showBalance={false}  />}
           </div>
         </div>
 
         <>
-          {!isConnected && <ConnectedContainer/>}
-          {isConnected && <InputForm/>}
+          {status != 'connected' && <ConnectedContainer/>}
+          {status === 'connected' && <InputForm/>}
         </>
         <div className="flex content-center p-8 items-center mx-auto">
           <img alt="Twitter Logo" className="w-12" src={twitterLogo} />

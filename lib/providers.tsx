@@ -22,7 +22,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_ID_TESTNET as string;
 const { chains, provider, webSocketProvider } = configureChains(
-  [mainnet, polygon, polygonMumbai],
+  [polygon, polygonMumbai],
   [alchemyProvider({ apiKey }), publicProvider()]
 );
 
