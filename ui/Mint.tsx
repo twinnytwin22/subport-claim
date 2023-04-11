@@ -97,7 +97,7 @@ const Mint = () => {
         }
       }
     } catch (error) {
-      console.log(error.code)
+      console.log(error)
     } 
   };
   // Render Methods
@@ -108,7 +108,7 @@ const Mint = () => {
       <ConnectWeb3 />
     </div>
   )};
-  const onSubmit = async (formData) => { 
+  const onSubmit = async (formData:FormValues) => { 
     toast('Submitting')
     setDomain(formData?.domain)
     setRecord(formData?.name)
