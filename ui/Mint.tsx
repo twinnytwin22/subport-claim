@@ -9,6 +9,7 @@ import { useAccount, useNetwork } from "wagmi";
 import { ConnectWeb3 } from "./Connect";
 import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
+import { useSession } from "next-auth/react";
 
 type FormValues = {
   domain: string;
@@ -36,7 +37,7 @@ const Mint = () => {
   const [domain, setDomain] = useState<any>("");
   const [step, setStep] = useState(1)
   const [record, setRecord] = useState<any>("");
-  const { status } = useAccount();
+  const {data:session, status } = useSession()
 
 
   const mintDomain = async () => {
@@ -55,7 +56,7 @@ const Mint = () => {
 
     try {
      
-      if (status == "connected") {
+      if (status == "authenticated") {
         const provider = new ethers.providers.Web3Provider(window.ethereum as any);
         const signer = provider.getSigner();
         const contract = new ethers.Contract(
@@ -132,6 +133,7 @@ const Mint = () => {
           />
           <p className="absolute right-5 text-xl font-bold"> {tld} </p>
         </div>
+        <p className="text-center text-xs mb-3">Your handle must be between 3-15 characters, all lowercase, no special characters, and no underscores (_) at the beginning or end.</p>
         <div className="flex justify-between mb-3 items-center content-center relative ">
           <input
             className="bg-zinc-900 border-zinc-700 border focus:ring-zinc-500 focus:ring rounded-lg p-4 w-full items-center text-center text-xl"
@@ -190,14 +192,14 @@ const Mint = () => {
                 <h1 className="text-lg font-bold">subport</h1>
               </Link>
             </div>
-            {status === 'connected' && <ConnectButton showBalance={false}  />}
+            {status === 'authenticated' && <ConnectButton showBalance={false}  />}
           </div>
         </div>
 
         <>
-          {status != 'connected' && <ConnectedContainer/>}
-          {status === 'connected' && step === 1 && <InputForm/>}
-          {status === 'connected' && step === 2 && onSuccessfulMint()}
+          {status != 'authenticated' && <ConnectedContainer/>}
+          {status === 'authenticated' && step === 1 && <InputForm/>}
+          {status === 'authenticated' && step === 2 && onSuccessfulMint()}
         </>
         <div className="flex content-center p-8 items-center mx-auto">
           <img alt="Twitter Logo" className="w-12" src={twitterLogo} />
