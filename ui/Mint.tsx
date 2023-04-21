@@ -197,7 +197,7 @@ const Mint = () => {
         </div>
 
         <>
-          {status != 'authenticated' && <ConnectedContainer/>}
+          {status === 'unauthenticated' && <ConnectedContainer/>}
           {status === 'authenticated' && step === 1 && <InputForm/>}
           {status === 'authenticated' && step === 2 && onSuccessfulMint()}
         </>
