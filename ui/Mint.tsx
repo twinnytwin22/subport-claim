@@ -103,7 +103,7 @@ const Mint = () => {
   // Render Methods
   const ConnectedContainer = () =>  { 
     return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className="mx-auto w-full max-w-sm relative isolate">
       <img className="mb-3 rounded-2xl" src="/subport_xyz.svg" />
       <ConnectWeb3 />
     </div>
