@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
 import contractAbi from "../utils/contractABI.json";
 import Link from "next/link";
@@ -9,7 +9,9 @@ import { useForm, SubmitHandler, useWatch } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { FaCoins, FaPencilAlt } from "react-icons/fa";
-import { resolve4 } from "dns";
+import { useAccount, useConnect } from "wagmi";
+import { tokenGate } from "lib/tokenGate";
+import { Media } from "./Media";
 
 type FormValues = {
   domain: string;
@@ -23,53 +25,80 @@ const TWITTER_HANDLE = "subportxyz";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const tld = ".subport";
-const CONTRACT_ADDRESS = "0xe95Cc033c0a0718D8daC521287ab46D80c8Dc073";
+const contract = "0xe95Cc033c0a0718D8daC521287ab46D80c8Dc073";
+const dummyAdd = "0x690A0e1Eaf12C8e4734C81cf49d478A2c6473A73"
 
 const Mint = () => {
+  const [data, setData] = useState<any>(false)
+  const [loading, setLoading] = useState(false)
   // Add some state data properties
-  const { register, handleSubmit, control, watch } = useForm<FormValues>({
+  const [domain, setDomain] = useState<any>("");
+  const [step, setStep] = useState(1);
+  const [role, setRole] = useState<any>("");
+  const [rolePreview, setRolePreview] = useState<any>('')
+  const { data: session, status } = useSession();
+  const { address } = useAccount()
+  const hasAddress = address!!
+  if (data.isHolderOfContract as any ) {
+  console.log(data)}
+  
+  useEffect(() => {
+    setLoading(true)
+    tokenGate({address: dummyAdd, contract})
+      .then((res) => res.json())
+      .then((data) => {
+        setData(data)
+        setLoading(false)
+      })
+  }, [])
+
+
+
+  const { register, handleSubmit, control, watch, setValue, formState: { errors }} = useForm<FormValues>({
     mode: "onChange",
     defaultValues: {
       domain: "",
       name: "",
       email: "",
-      role: "",
+      role: role,
     },
   });
-  const [domain, setDomain] = useState<any>("");
-  const [step, setStep] = useState(1);
-  const [role, setRole] = useState<any>("");
-  const { data: session, status } = useSession();
+
+
+  const handleRoleSelection = async (event: any) => {
+    const input = event?.target.value
+    setRolePreview(input)
+    setValue("role", input)
+    console.log(rolePreview)
+  }
+
 
   const mintDomain = async (formData: FormValues) => {
+    console.log(formData, 'from mint')
     // Don't run if the domain is empty
     if (domain == formData?.domain) {
     // Alert the user if the domain is too short
-    if (domain.length <= 5) {
-      toast("handles 5 characters will require 10 matic");
-      return;
-    }
+    
     // Calculate price based on length of domain (change this to match your contract)
     // 3 chars = 0.5 MATIC, 4 chars = 0.3 MATIC, 5 or more = 0.1 MATIC
-      const price =
-      domain.length <= 5 ? "10" : "0.0";
+      const price = "0.0";
       console.log("Minting domain", domain, ".subport", "with price", price, 'as', role);
 
     try {
-      if (status == "authenticated") {
+      if (status == "unauthenticated") {
         const provider = new ethers.providers.Web3Provider(
           window.ethereum as any
         );
         const signer = provider.getSigner();
-        const contract = new ethers.Contract(
-          CONTRACT_ADDRESS,
+        const contractInstance = new ethers.Contract(
+          contract,
           contractAbi.abi,
           signer
         );
 
         console.log("Going to pop wallet now to pay gas...");
 
-        let tx = await contract.register(domain,role, {
+        let tx = await contractInstance.register(domain,role, {
           value: ethers.utils.parseEther(price),
         });
         // Wait for the transaction to be mined
@@ -83,12 +112,6 @@ const Mint = () => {
           );
 
           // Set the record for the domain
-          tx = await contract.setRole(domain, role);
-          await tx.wait();
-
-          console.log(
-            "Role of",role,"set https://mumbai.polygonscan.com/tx/" + tx.hash
-          );
           toast.success("Finalizing");
           setStep(2);
         } else {
@@ -105,6 +128,13 @@ const Mint = () => {
   }
   
   };
+
+  if (loading) {
+    return (
+<p className="text-white text-center">loading...</p>
+    )
+  }
+  const isHolder = [data]?.[0]?.isHolderOfContract
   // Render Methods
   const ConnectContainer = () => {
     return (
@@ -117,12 +147,12 @@ const Mint = () => {
     );
   };
   const onSubmit = async (formData: FormValues) => {
+ 
     if (formData.role) {
       setDomain(formData?.domain);
       setRole(formData?.role);
       try {
         await mintDomain(formData);
-        setStep(2);
       } catch (error) {
         console.log("Error minting domain:", error);
       }
@@ -135,8 +165,9 @@ const Mint = () => {
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="max-w-md w-full mx-auto flex flex-col">
+          <p>{[data]?.[0]?.isHolderOfContract ? 'hi' : 'bye' }</p>
           <h3 className="p-5 text-2xl font-medium text-zinc-900 dark:text-white text-center">
-            choose your path.
+            {rolePreview ? <> You have chosen {rolePreview} </>: 'choose your path.'}
           </h3>
           <div className="justify-between mb-5 items-center content-center relative mx-auto w-full">
             <ul className="grid w-full gap-6 md:grid-cols-2">
@@ -148,6 +179,8 @@ const Mint = () => {
                   className="hidden peer"
                   required
                   {...register("role")}
+                  onChange={handleRoleSelection}
+
 
                 />
                 <label
@@ -167,6 +200,7 @@ const Mint = () => {
                   value="collector"
                   className="hidden peer"
                   {...register("role")}
+                  onChange={handleRoleSelection}
                 />
                 <label
                   htmlFor="collector"
@@ -194,9 +228,6 @@ const Mint = () => {
             your handle must be between 5-15 characters, all lowercase, no
             special characters, and no underscores (_) at the beginning or end.
           </p>
-         
-         
-
           <button
             type="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
@@ -216,15 +247,19 @@ const Mint = () => {
         <h1 className="mx-auto text-4xl font-extrabold text-center">
           You're in as a {role}!
         </h1>
-        <div>
+        <div className="w-full flex justify-center mx-auto content-center p-5">
+        <Media/>
+</div>
+        <div className="content-center mx-auto">
           <p className="text-center text-xl py-5 font-bold">{domain}.subport</p>
           <div className="flex justify-around p-4">
             <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               Share
             </button>
+            <Link href={``}>
             <button className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
               View
-            </button>
+            </button></Link>
           </div>
         </div>
       </div>
@@ -254,8 +289,10 @@ const Mint = () => {
 
         <>
           {status === "unauthenticated" && <ConnectContainer />}
-          {status === "authenticated" && step === 1 && <InputForm />}
+          {status === "authenticated" && !isHolder && step === 1 && ![data]?.[0]?.isHolderOfContract && <InputForm />}
           {status === "authenticated" && step === 2 && onSuccessfulMint()}
+          {status === 'authenticated' && isHolder && onSuccessfulMint()}
+    
         </>
         <div className="flex content-center p-8 items-center mx-auto">
           <img alt="Twitter Logo" className="w-12" src={twitterLogo} />
