@@ -138,10 +138,11 @@ const Mint = () => {
                 <input
                   type="radio"
                   id="creator"
-                  name="role"
                   value="creator"
                   className="hidden peer"
                   required
+                  {...register("role")}
+
                 />
                 <label
                   htmlFor="creator"
@@ -157,9 +158,9 @@ const Mint = () => {
                 <input
                   type="radio"
                   id="collector"
-                  name="role"
                   value="collector"
                   className="hidden peer"
+                  {...register("role")}
                 />
                 <label
                   htmlFor="collector"
