@@ -117,14 +117,18 @@ const Mint = () => {
     );
   };
   const onSubmit = async (formData: FormValues) => {
-    toast("Submitting");
     if (formData.role) {
-    setDomain(formData?.domain);
-    setRole(formData?.role)
-    await mintDomain(formData);
+      setDomain(formData?.domain);
+      setRole(formData?.role);
+      try {
+        await mintDomain(formData);
+        setStep(2);
+      } catch (error) {
+        console.log("Error minting domain:", error);
+      }
     }
-    setStep(2);
   };
+  
 
   // Form to enter domain name and data
   const InputForm = () => {
