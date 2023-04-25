@@ -12,7 +12,7 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 import { darkTheme, RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { configureChains, WagmiConfig, createClient } from "wagmi";
-import { mainnet, polygon, polygonMumbai } from "wagmi/chains";
+import { polygon, polygonMumbai } from "wagmi/chains";
 import { publicProvider } from "wagmi/providers/public";
 import { alchemyProvider } from "wagmi/providers/alchemy";
 import { ToastContainer } from "react-toastify";
@@ -32,12 +32,12 @@ const { chains, provider, webSocketProvider } = configureChains(
 
 const connectors = connectorsForWallets([
   {
-    groupName: "CRIB Recommended",
+    groupName: "subport recommended",
     wallets: [
       injectedWallet({ chains }),
       rainbowWallet({ chains }),
       metaMaskWallet({ chains }),
-      coinbaseWallet({ chains, appName: "THE CRIB" }),
+      coinbaseWallet({ chains, appName: "subport.xyz" }),
       ledgerWallet({ chains }),
       walletConnectWallet({ chains }),
     ],
