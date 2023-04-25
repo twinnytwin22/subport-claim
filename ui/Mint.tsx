@@ -118,9 +118,11 @@ const Mint = () => {
   };
   const onSubmit = async (formData: FormValues) => {
     toast("Submitting");
+    if (formData.role) {
     setDomain(formData?.domain);
     setRole(formData?.role)
     await mintDomain(formData);
+    }
     setStep(2);
   };
 
