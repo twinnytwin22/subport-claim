@@ -23,7 +23,7 @@ const TWITTER_HANDLE = "subportxyz";
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 
 const tld = ".subport";
-const CONTRACT_ADDRESS = "0x6A4044E612b8D0bD23e65629a243cB19265A80Ec";
+const CONTRACT_ADDRESS = "0xe95Cc033c0a0718D8daC521287ab46D80c8Dc073";
 
 const Mint = () => {
   // Add some state data properties
@@ -69,7 +69,7 @@ const Mint = () => {
 
         console.log("Going to pop wallet now to pay gas...");
 
-        let tx = await contract.register(domain, {
+        let tx = await contract.register(domain,role, {
           value: ethers.utils.parseEther(price),
         });
         // Wait for the transaction to be mined
@@ -246,8 +246,8 @@ const Mint = () => {
         </div>
 
         <>
-          {status === "authenticated" && <ConnectContainer />}
-          {status === "unauthenticated" && step === 1 && <InputForm />}
+          {status === "unauthenticated" && <ConnectContainer />}
+          {status === "authenticated" && step === 1 && <InputForm />}
           {status === "authenticated" && step === 2 && onSuccessfulMint()}
         </>
         <div className="flex content-center p-8 items-center mx-auto">
