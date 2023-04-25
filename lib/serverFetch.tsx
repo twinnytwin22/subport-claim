@@ -1,0 +1,8 @@
+import { alchemyApiKey, alchemyOptions, contract } from "./fatchVars"
+
+
+export async function getDomain(address:any){
+const r = await fetch(`https://polygon-mumbai.g.alchemy.com/nft/v3/${alchemyApiKey}/getNFTsForOwner?owner=${address}&contractAddresses[]=${contract}&withMetadata=true`, alchemyOptions)
+return r
+}
+

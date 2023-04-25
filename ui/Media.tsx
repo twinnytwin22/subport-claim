@@ -1,4 +1,3 @@
-'use client'
 import { MediaRenderer } from "@thirdweb-dev/react";
 import { ThirdwebProvider } from "@thirdweb-dev/react";
 
