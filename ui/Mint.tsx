@@ -62,9 +62,10 @@ const Mint = () => {
           console.error("Error fetching data:", error);
           setStep(1);
           setLoading(false);
+        } else {
+          setLoading(false)
         }
     };
-
     fetchData();
   }, []);
 
