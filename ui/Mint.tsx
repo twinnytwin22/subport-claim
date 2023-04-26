@@ -1,22 +1,24 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { ethers } from "ethers";
+import { DecentSDK, edition } from "@decent.xyz/sdk";
 import contractAbi from "../utils/contractABI.json";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { tld } from "lib/fatchVars";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { FaCoins, FaPencilAlt } from "react-icons/fa";
-import { useAccount } from "wagmi";
+import { useAccount, useSigner } from "wagmi";
 import { tokenGate } from "lib/tokenGate";
-import { contract } from "lib/fatchVars";
+import { contract, chainId } from "lib/fatchVars";
 import { getDomain } from "lib/serverFetch";
 import { eligible } from "lib/eligble";
-import { onSuccessfulMint } from "./SuccessfulMint";
+import { OnSuccessfulMint } from "./SuccessfulMint";
 import { ConnectContainer } from "./ConnectedContainer";
-import LoadingContainer from "./LoadingContainer";
 import Footer from "./Footer";
+import LoadingContainer from "./LoadingContainer";
 type FormValues = {
   domain: string;
   name: string;
@@ -25,48 +27,55 @@ type FormValues = {
 };
 
 
-
-const tld = ".subport";
-
 const Mint = () => {
+
+  // Add some state data properties
   const [data, setData] = useState<any>(false);
   const [loading, setLoading] = useState(false);
-  // Add some state data properties
   const [domain, setDomain] = useState<any>("");
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<any>("");
   const [rolePreview, setRolePreview] = useState<any>("");
+  const [ minted, setMinted ] = useState(false)
   const [NFT, setNFT] = useState<any>(null);
+
+  // Client Data
   const { data: session, status } = useSession();
   const { address } = useAccount();
-  const hasAddress = address!!;
-  const allowed = (eligible.includes(hasAddress)) 
-  console.log(allowed)
-    
+  const {data:signer} = useSigner()
+
+  // Logic 
+  const hasAddress = address!!?.toLowerCase();
+  const isEligible = eligible.map(str => str.toLowerCase())
+  const allowed = isEligible.includes(hasAddress)
+
+  
+  /// Holder and Eligibility Check
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      if (hasAddress)
+      if (hasAddress) {
         try {
-          const tokenGateData = await tokenGate({ address: hasAddress }).then(
+          let tokenGateData = await tokenGate({ address: hasAddress }).then(
             (res) => res.json()
           );
           setData(tokenGateData);
-
-          const nftData = await getDomain(hasAddress).then((res) => res.json());
+          let nftData = await getDomain(hasAddress).then((res) => res.json());
           setNFT(nftData);
-
           setLoading(false);
         } catch (error) {
           console.error("Error fetching data:", error);
           setStep(1);
           setLoading(false);
-        } else {
-          setLoading(false)
         }
+      } else {
+        setLoading(false);
+      }
     };
+
     fetchData();
-  }, []);
+  }, [hasAddress, minted]);
+
 
   let isHolder = null;
   let ownedNfts = null;
@@ -102,43 +111,27 @@ const Mint = () => {
     const input = event?.target.value;
     setRolePreview(input);
     setValue("role", input);
-    console.log(rolePreview);
   };
 
   const mintDomain = async (formData: FormValues) => {
-    console.log(formData, "from mint");
     // Don't run if the domain is empty
     if (domain == formData?.domain) {
-      // Alert the user if the domain is too short
-
-      // Calculate price based on length of domain (change this to match your contract)
-      // 3 chars = 0.5 MATIC, 4 chars = 0.3 MATIC, 5 or more = 0.1 MATIC
       const price = "0.0";
       console.log(
         "Minting domain",
-        domain,
-        ".subport",
-        "with price",
-        price,
+        domain+".subport",
         "as",
         role
       );
 
       try {
-        if (status == "unauthenticated") {
-          const provider = new ethers.providers.Web3Provider(
-            window.ethereum as any
-          );
-          const signer = provider.getSigner();
-          const contractInstance = new ethers.Contract(
-            contract,
-            contractAbi.abi,
-            signer
-          );
+        if (status == "authenticated" && hasAddress && allowed && signer) {
+          const sdk = new DecentSDK(chainId, signer);
 
+          const contractInstance =  new ethers.Contract(contract, contractAbi.abi, sdk.signerOrProvider); 
           console.log("Going to pop wallet now to pay gas...");
 
-          let tx = await contractInstance.register(domain, role, {
+          let tx = await contractInstance.register(domain.toLowerCase(), role.toLowerCase(), {
             value: ethers.utils.parseEther(price),
           });
           // Wait for the transaction to be mined
@@ -153,6 +146,7 @@ const Mint = () => {
 
             // Set the record for the domain
             toast.success("Finalizing");
+            setMinted(true);
             setStep(2);
           } else {
             setDomain("");
@@ -183,7 +177,7 @@ const Mint = () => {
     }
   };
   if (loading) {
-    return <LoadingContainer/>;
+    return ( <LoadingContainer/>)
   }
 
   const NotAllowed = () => {
@@ -204,7 +198,7 @@ const Mint = () => {
     return (
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="max-w-md w-full mx-auto flex flex-col">
-          <p>{[data]?.[0]?.isHolderOfContract ? onSuccessfulMint({data, NFT, metadata, osLink}) : "bye"}</p>
+          <p>{[data]?.[0]?.isHolderOfContract ? OnSuccessfulMint({data, NFT, metadata, osLink}) : null}</p>
           <h3 className="p-5 text-2xl font-medium text-zinc-900 dark:text-white text-center">
             {rolePreview ? (
               <> You have chosen {rolePreview} </>
@@ -299,22 +293,26 @@ const Mint = () => {
                 <h1 className="text-lg font-bold">subport</h1>
               </Link>
             </div>
-            {status === "authenticated" && (
+            {status === "authenticated" && hasAddress && (
               <ConnectButton showBalance={false} />
             )}
           </div>
         </div>
-
+      <Suspense>
         <>
-          {status === "unauthenticated" && <ConnectContainer />}
-          {status === "authenticated" && !allowed && <NotAllowed/> }
-          {status === "authenticated" && allowed && !isHolder && step === 1 && (
-            <InputForm />
-          )}
-          {status === "authenticated" && allowed && step === 2 && onSuccessfulMint({data, NFT, metadata, osLink})}
-          {status === "authenticated" && allowed && isHolder && onSuccessfulMint({data, NFT, metadata, osLink})}
+          
+          {status === "unauthenticated" && (<ConnectContainer />)}
+          {status === "authenticated" && !hasAddress && (<ConnectContainer />)}
+
+          {status === "authenticated" && hasAddress && !allowed && <NotAllowed/> }
+
+          {status === "authenticated" && hasAddress && allowed && !isHolder && step === 1 && (<InputForm />)}
+
+          {status === "authenticated" && hasAddress && allowed && step === 2 && OnSuccessfulMint({data, NFT, metadata, osLink, role})}
+          {status === "authenticated" && hasAddress && allowed && isHolder && OnSuccessfulMint({data, NFT, metadata, osLink, role})}
         </>
-        <Footer/>
+      </Suspense>
+   <Footer/>
       </div>
     </div>
   );
