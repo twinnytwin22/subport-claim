@@ -4,18 +4,19 @@ import { ethers } from "ethers";
 import contractAbi from "../utils/contractABI.json";
 import Link from "next/link";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { ConnectWeb3 } from "./Connect";
-import { useForm, SubmitHandler, useWatch } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useSession } from "next-auth/react";
 import { FaCoins, FaPencilAlt } from "react-icons/fa";
-import { useAccount, useConnect } from "wagmi";
+import { useAccount } from "wagmi";
 import { tokenGate } from "lib/tokenGate";
 import { contract } from "lib/fatchVars";
 import { getDomain } from "lib/serverFetch";
 import { eligible } from "lib/eligble";
 import { onSuccessfulMint } from "./SuccessfulMint";
 import { ConnectContainer } from "./ConnectedContainer";
+import LoadingContainer from "./LoadingContainer";
+import Footer from "./Footer";
 type FormValues = {
   domain: string;
   name: string;
@@ -23,9 +24,7 @@ type FormValues = {
   role: string;
 };
 
-const twitterLogo = "/twitter-logo.svg"; // Constants
-const TWITTER_HANDLE = "subportxyz";
-const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
+
 
 const tld = ".subport";
 
@@ -87,8 +86,6 @@ const Mint = () => {
   const {
     register,
     handleSubmit,
-    control,
-    watch,
     setValue,
     formState: { errors },
   } = useForm<FormValues>({
@@ -186,7 +183,7 @@ const Mint = () => {
     }
   };
   if (loading) {
-    return <p className="text-white text-center">loading...</p>;
+    return <LoadingContainer/>;
   }
 
   const NotAllowed = () => {
@@ -317,15 +314,7 @@ const Mint = () => {
           {status === "authenticated" && allowed && step === 2 && onSuccessfulMint({data, NFT, metadata, osLink})}
           {status === "authenticated" && allowed && isHolder && onSuccessfulMint({data, NFT, metadata, osLink})}
         </>
-        <div className="flex content-center p-8 items-center mx-auto">
-          <img alt="Twitter Logo" className="w-12" src={twitterLogo} />
-          <a
-            className="text-white font-bold"
-            href={TWITTER_LINK}
-            target="_blank"
-            rel="noreferrer"
-          >{`@${TWITTER_HANDLE}`}</a>
-        </div>
+        <Footer/>
       </div>
     </div>
   );
