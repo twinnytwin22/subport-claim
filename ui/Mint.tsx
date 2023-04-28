@@ -260,7 +260,7 @@ const Mint = () => {
           </div>
           <div className="flex justify-between mb-3 items-center content-center relative ">
             <input
-              className="bg-zinc-900 border-zinc-700 border focus:ring-zinc-500 focus:ring rounded-lg p-4 w-full items-center text-center text-xl"
+              className="bg-zinc-900 focus:bg-zinc-900 border-zinc-700 border focus:ring-zinc-500 focus:ring rounded-lg p-4 w-full items-center text-center text-xl"
               type="text"
               placeholder="handle"
               id="domain"
@@ -272,13 +272,14 @@ const Mint = () => {
             your handle must be between 5-15 characters, all lowercase, no
             special characters, and no underscores (_) at the beginning or end.
           </p>
+          {rolePreview &&
           <button
             type="submit"
             value="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            {minting ? 'confirm' : 'claim'}
-          </button>
+            {minting ? 'claim' : 'confirm'}
+          </button>}
         </div>
       </form>
     );
