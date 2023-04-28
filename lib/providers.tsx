@@ -24,9 +24,9 @@ import { SessionProvider } from "next-auth/react";
 const getSiweMessageOptions: GetSiweMessageOptions = () => ({
   statement: 'Sign in subport. This will not trigger any transactions, transfers, mints, or deployments',
 });
-const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_ID_TESTNET as string;
+const apiKey = process.env.NEXT_PUBLIC_ALCHEMY_ID as string;
 const { chains, provider, webSocketProvider } = configureChains(
-  [polygon, polygonMumbai],
+  [polygon],
   [alchemyProvider({ apiKey }), publicProvider()]
 );
 

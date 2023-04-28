@@ -89,7 +89,7 @@ const Mint = () => {
     ownedNfts = NFT?.ownedNfts?.[0];
     metadata = ownedNfts?.raw?.metadata;
     tokenID = ownedNfts?.tokenId;
-    osLink = `https://testnets.opensea.io/assets/mumbai/${contract}/${tokenID}`;
+    osLink = `https://opensea.io/assets/${contract}/${tokenID}`;
   }
 
   const {
@@ -146,7 +146,7 @@ const Mint = () => {
           if (receipt.status === 1) {
             toast.success("Created Successfully!");
             console.log(
-              "Domain minted! https://mumbai.polygonscan.com/tx/" + tx.hash
+              "Domain minted! https://polygonscan.com/tx/" + tx.hash
             );
 
             // Set the record for the domain
@@ -313,7 +313,7 @@ const Mint = () => {
 
           {status === "authenticated" && hasAddress && allowed && !isHolder && step === 1 && (<InputForm />)}
 
-          {status === "authenticated" && hasAddress && allowed && step === 2 && OnSuccessfulMint({data, NFT, metadata, osLink, role})}
+        
           {status === "authenticated" && hasAddress && allowed && isHolder && OnSuccessfulMint({data, NFT, metadata, osLink, role})}
         </>
       </Suspense>

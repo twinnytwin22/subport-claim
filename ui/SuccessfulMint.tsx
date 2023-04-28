@@ -3,11 +3,12 @@ import Link from "next/link";
 import { ShareButton } from "./ShareCardButton";
 export const OnSuccessfulMint = ({data, NFT, metadata, setLoading, osLink, role}:any) => {
 const image = NFT?.ownedNfts[0]?.image?.cachedUrl
+const metaRole = metadata?.role
     return (
       <>
         <div className="bg-zinc-900 border-zinc-700 border shadow-zinc-800 shadow-lg rounded-lg max-w-md w-full mx-auto p-8">
           <h1 className="mx-auto text-4xl font-extrabold text-center">
-            You're in as a {metadata?.role ?? role}!
+            You're in as a {metaRole ? metaRole : role}!
           </h1>{" "}
           <div className="content-center mx-auto">
             <div className="w-full flex justify-center mx-auto content-center p-5">
