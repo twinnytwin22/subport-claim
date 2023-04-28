@@ -18,6 +18,7 @@
     "@rainbow-me/rainbowkit": "^0.8.1",
     "@rainbow-me/rainbowkit-siwe-next-auth": "^0.1.5",
     "@sendgrid/mail": "^7.7.0",
+    "@supabase/supabase-js": "^2.21.0",
     "@thirdweb-dev/react": "^3.6.11",
     "@thirdweb-dev/sdk": "^3.6.11",
     "eslint": "8.31.0",
