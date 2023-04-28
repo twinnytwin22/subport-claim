@@ -3,7 +3,8 @@ import Link from "next/link";
 import { ShareButton } from "./ShareCardButton";
 export const OnSuccessfulMint = ({data, NFT, metadata, setLoading, osLink, role}:any) => {
 const image = NFT?.ownedNfts[0]?.image?.cachedUrl
-const metaRole = metadata?.role
+const metaRole = metadata?.attributes[0].value
+console.log(metadata)
     return (
       <>
         <div className="bg-zinc-900 border-zinc-700 border shadow-zinc-800 shadow-lg rounded-lg max-w-md w-full mx-auto p-8">
