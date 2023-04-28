@@ -35,6 +35,7 @@ const Mint = () => {
   const [step, setStep] = useState(1);
   const [role, setRole] = useState<any>("");
   const [rolePreview, setRolePreview] = useState<any>("");
+  const [minting, setMinting] = useState(false)
   const [ minted, setMinted ] = useState(false)
   const [NFT, setNFT] = useState<any>(null);
 
@@ -115,7 +116,7 @@ const Mint = () => {
 
   const mintDomain = async (formData: FormValues) => {
     // Don't run if the domain is empty
-    if (domain == formData?.domain) {
+    if (domain == formData?.domain && minting) {
         // Digital Signature logic
   const addressHash = ethers.utils.solidityKeccak256(['address'],[hasAddress])
   const messageBytes = ethers.utils.arrayify(addressHash)
@@ -151,6 +152,7 @@ const Mint = () => {
 
             // Set the record for the domain
             toast.success("Finalizing");
+            setMinting(false);
             setMinted(true);
             setStep(2);
           } else {
@@ -171,7 +173,9 @@ const Mint = () => {
   // Render Methods
 
   const onSubmit = async (formData: FormValues) => {
-    if (formData.role) {
+      
+    if (formData?.role) {
+      setMinting(true)
       setDomain(formData?.domain);
       setRole(formData?.role);
       try {
@@ -270,9 +274,10 @@ const Mint = () => {
           </p>
           <button
             type="submit"
+            value="submit"
             className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-lg px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
           >
-            claim
+            {minting ? 'confirm' : 'claim'}
           </button>
         </div>
       </form>
