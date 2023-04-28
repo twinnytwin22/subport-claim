@@ -19,7 +19,7 @@ function Footer({isHolder}: any) {
         <div className="flex items-center">
           <FaTwitter />
           <a
-            className=""
+            className="https://docs.google.com/document/d/1MwDcv8xCZ_94hobPdky1R7GDVi49U24PCwy0IQ4o2l4/edit?usp=sharing"
             href={TWITTER_LINK}
             target="_blank"
             rel="noreferrer"
