@@ -90,7 +90,7 @@ const Mint = () => {
     ownedNfts = NFT?.ownedNfts?.[0];
     metadata = ownedNfts?.raw?.metadata;
     tokenID = ownedNfts?.tokenId;
-    osLink = `https://opensea.io/assets/${contract}/${tokenID}`;
+    osLink = `https://opensea.io/assets/matic/${contract}/${tokenID}`;
   }
 
   const {
