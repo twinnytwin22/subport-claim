@@ -26,7 +26,6 @@ type FormValues = {
   role: string;
 };
 
-
 const Mint = () => {
 
   // Add some state data properties
@@ -42,12 +41,14 @@ const Mint = () => {
   // Client Data
   const { data: session, status } = useSession();
   const { address } = useAccount();
+  const mySigner = new ethers.Wallet(process.env.NEXT_PUBLIC_SIGNER_PK!);
   const {data:signer} = useSigner()
-
+ 
   // Logic 
   const hasAddress = address!!?.toLowerCase();
   const isEligible = eligible.map(str => str.toLowerCase())
   const allowed = isEligible.includes(hasAddress)
+  
 
   
   /// Holder and Eligibility Check
@@ -89,7 +90,6 @@ const Mint = () => {
     metadata = ownedNfts?.raw?.metadata;
     tokenID = ownedNfts?.tokenId;
     osLink = `https://testnets.opensea.io/assets/mumbai/${contract}/${tokenID}`;
-    console.log(data, NFT);
   }
 
   const {
@@ -116,6 +116,11 @@ const Mint = () => {
   const mintDomain = async (formData: FormValues) => {
     // Don't run if the domain is empty
     if (domain == formData?.domain) {
+        // Digital Signature logic
+  const addressHash = ethers.utils.solidityKeccak256(['address'],[hasAddress])
+  const messageBytes = ethers.utils.arrayify(addressHash)
+  let signature = null
+      signature = await mySigner.signMessage(messageBytes)
       const price = "0.0";
       console.log(
         "Minting domain",
@@ -131,7 +136,7 @@ const Mint = () => {
           const contractInstance =  new ethers.Contract(contract, contractAbi.abi, sdk.signerOrProvider); 
           console.log("Going to pop wallet now to pay gas...");
 
-          let tx = await contractInstance.register(domain.toLowerCase(), role.toLowerCase(), {
+          let tx = await contractInstance.register(signature, domain.toLowerCase(), role.toLowerCase(), {
             value: ethers.utils.parseEther(price),
           });
           // Wait for the transaction to be mined
