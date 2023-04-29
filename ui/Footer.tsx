@@ -12,14 +12,14 @@ function Footer({isHolder}: any) {
   return (
     <div className="mx-auto text-center font-extrabold text-xs text-slate-200 ">
       {!isHolder && status === 'unauthenticated'&& <div className="hover:scale-110 hover:text-white">
-        <Link href="">become a test user to claim your handle.</Link>
+        <Link href="https://docs.google.com/document/d/1MwDcv8xCZ_94hobPdky1R7GDVi49U24PCwy0IQ4o2l4/edit?usp=sharing">become a test user to claim your handle.</Link>
       </div>}
       <hr className="mt-6 isolate w-screen-2xl bg-slate-300"/>
       <div className="flex p-6 items-center mx-auto content-center justify-center space-x-2">
         <div className="flex items-center">
           <FaTwitter />
           <a
-            className="https://docs.google.com/document/d/1MwDcv8xCZ_94hobPdky1R7GDVi49U24PCwy0IQ4o2l4/edit?usp=sharing"
+            className=""
             href={TWITTER_LINK}
             target="_blank"
             rel="noreferrer"
