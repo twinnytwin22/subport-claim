@@ -14,7 +14,6 @@ import { useAccount, useSigner } from "wagmi";
 import { tokenGate } from "lib/tokenGate";
 import { contract, chainId } from "lib/fatchVars";
 import { getDomain } from "lib/serverFetch";
-import { eligible } from "lib/eligble";
 import { OnSuccessfulMint } from "./SuccessfulMint";
 import { ConnectContainer } from "./ConnectedContainer";
 import Footer from "./Footer";
@@ -26,7 +25,16 @@ type FormValues = {
   role: string;
 };
 
-const Mint = () => {
+type User = {
+  wallet_address: string;
+};
+
+type Data = {
+  users: User[];
+};
+
+
+const Mint = (d:any) => {
 
   // Add some state data properties
   const [data, setData] = useState<any>(false);
@@ -44,11 +52,16 @@ const Mint = () => {
   const { address } = useAccount();
   const mySigner = new ethers.Wallet(process.env.NEXT_PUBLIC_SIGNER_PK!);
   const {data:signer} = useSigner()
+  const extractWalletAddresses = (users: User[]) =>
+  users.map((user) => user.wallet_address);
+  const newEligible = extractWalletAddresses(d.users)
+  console.log(newEligible, 'new')
  
   // Logic 
   const hasAddress = address!!?.toLowerCase();
-  const isEligible = eligible.map(str => str.toLowerCase())
+  const isEligible = newEligible.map(str => str.toLowerCase())
   const allowed = isEligible.includes(hasAddress)
+  console.log(isEligible, 'old')
   
 
   
